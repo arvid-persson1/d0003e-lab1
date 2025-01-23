@@ -54,22 +54,22 @@ void writeChar(char ch, int pos) {
     if (pos < 0 || pos > 5)
         return;
 
-    num = ch - '0';
+    int_fast8_t num = ch - '0';
     if (num < 0 || num > 9)
         return;
 
     div_t qr = div(pos, 2);
 
     uint16_t scc = sccTable[num];
-    uint8_t *lcd = &LCDDR0 + qr.quot,
-            mask = qr.rem ? 0x0F : 0xF0;
+    volatile uint8_t *lcd = &LCDDR0 + qr.quot;
+    uint8_t mask = qr.rem ? 0x0F : 0xF0;
 
     for (uint_fast8_t i = 0; i < 4; i++) {
         uint8_t nib = scc & 0xF;
         if (qr.rem)
             nib <<= 4;
 
-        *lcd = *lcd & mask | nib;
+        *lcd = (*lcd & mask) | nib;
         lcd += 0x5;
 
         scc >>= 4;
@@ -80,8 +80,8 @@ void clearChar(int pos) {
     if (pos < 0 || pos > 5)
         return;
 
-    uint8_t *lcd = &LCDDR0,
-            mask = pos % 2 ? 0xF0 : 0x0F;
+    volatile uint8_t *lcd = &LCDDR0;
+    uint8_t mask = pos % 2 ? 0xF0 : 0x0F;
 
     for (uint_fast8_t i = 0; i < 4; i++) {
         *lcd &= mask;
@@ -150,7 +150,7 @@ void button(void) {
 void singlePrime(unsigned long *i) {
     do {
         (*i)++;
-    } while (!isPrime(*i))
+    } while (!isPrime(*i));
 
     writeLong(*i);
 }
