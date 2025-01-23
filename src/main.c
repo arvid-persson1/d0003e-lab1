@@ -92,10 +92,14 @@ void clearChar(int pos) {
 void writeLong(long n) {
     uint_fast8_t pos = 5;
 
-    while (n > 0 && pos > 0) {
-        div_t qr = div(n, 10);
-        writeChar(qr.rem + '0', pos--);
-        n = qr.quot;
+    if (n == 0) {
+        writeChar('0', pos--);
+    } else {
+        while (n > 0 && pos > 0) {
+            div_t qr = div(n, 10);
+            writeChar(qr.rem + '0', pos--);
+            n = qr.quot;
+        }
     }
 
     while (pos > 0) {
