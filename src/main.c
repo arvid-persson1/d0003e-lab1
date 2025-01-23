@@ -81,7 +81,7 @@ void clearChar(int pos) {
         return;
 
     volatile uint8_t *lcd = &LCDDR0;
-    uint8_t mask = pos % 2 ? 0xF0 : 0x0F;
+    uint8_t mask = pos % 2 ? 0x0F : 0xF0;
 
     for (uint_fast8_t i = 0; i < 4; i++) {
         *lcd &= mask;
@@ -99,12 +99,12 @@ void writeLong(long n) {
     }
 
     while (pos > 0) {
-        clearChar(pos);
+        clearChar(pos--);
     }
 }
 
 bool isPrime(unsigned long n) {
-    for (unsigned long i = 2; i * i < n; i++)
+    for (unsigned long i = 2; i * i <= n; i++)
          if (!(n % i))
             return false;
 
@@ -120,15 +120,16 @@ void primes(void) {
     }
 }
 
-static const uint16_t FREQ = 31250;
+static const uint16_t OFFSET = 31250;
+static const int16_t TOLERANCE = 500;
 
 void blink() {
-    uint16_t next = 0;
+    int16_t next = 0;
 
     while (true) {
-        if (TCNT1 == next) {
+        if (abs(TCNT1 - next) <= TOLERANCE) {
             LCDDR3 ^= 1;
-            next += FREQ / 2;
+            next += OFFSET / 2;
         }
     }
 
@@ -140,10 +141,17 @@ void blink() {
 }
 
 void button(void) {
+    LCDDR13 ^= 1;
+    bool state = false;
+
     while(true) {
-        while (PINB & SET(PINB7));
-        LCDDR13 ^= 1;
-        LCDDR18 ^= 1;
+        if (PINB & SET(PINB7)) {
+            state = true;
+        } else if (state) {
+            LCDDR13 ^= 1;
+            LCDDR18 ^= 1;
+            state = false;
+        }
     }
 }
 
@@ -155,25 +163,28 @@ void singlePrime(unsigned long *i) {
     writeLong(*i);
 }
 
-void checkBlink(uint16_t *next) {
-    if (TCNT1 == *next) {
+void checkBlink(int16_t *next) {
+    if (abs(TCNT1 - *next) <= TOLERANCE) {
         LCDDR3 ^= 1;
-        *next += FREQ / 2;
+        *next += OFFSET / 2;
     }
 }
 
-void checkButton(void) {
-    if (!(PINB & SET(PINB7))) {
+void checkButton(bool *state) {
+    if (PINB & SET(PINB7)) {
+        *state = true;
+    } else {
         LCDDR13 ^= 1;
         LCDDR18 ^= 1;
+        *state = false;
     }
 }
 
 int main(void) {
     initClk();
+    initLcd();
 
     // Part 1.
-    initLcd();
     primes();
 
     // Part 2.
@@ -185,13 +196,16 @@ int main(void) {
     // button();
     
     // Part 4.
+    // initTimer();
+    // initButton();
+    // button();
+    //
     // unsigned long prime = 1;
-    // uint16_t timer = 0;
+    // int16_t timer = OFFSET;
+    // bool buttonState = false;
     // while (true) {
     //     singlePrime(&prime);
     //     checkBlink(&timer);
-    //     checkButton();
+    //     checkButton(&buttonState);
     // }
-    
-    while (true);
 }
