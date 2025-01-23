@@ -148,9 +148,9 @@ void button(void) {
 }
 
 void singlePrime(unsigned long *i) {
-    while (!isPrime(*i)) {
+    do {
         (*i)++;
-    }
+    } while (!isPrime(*i))
 
     writeLong(*i);
 }
@@ -185,7 +185,7 @@ int main(void) {
     // button();
     
     // Part 4.
-    // unsigned long prime = 2;
+    // unsigned long prime = 1;
     // uint16_t timer = 0;
     // while (true) {
     //     singlePrime(&prime);
