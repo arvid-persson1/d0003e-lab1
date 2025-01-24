@@ -55,8 +55,10 @@ void writeChar(char ch, int pos) {
         return;
 
     int_fast8_t num = ch - '0';
-    if (num < 0 || num > 9)
+    if (num < 0 || num > 9) {
+        clearChar(pos);
         return;
+    }
 
     div_t qr = div(pos, 2);
 
