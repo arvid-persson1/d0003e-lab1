@@ -192,7 +192,7 @@ int main(void) {
     initLcd();
 
     // Part 1.
-    primes();
+    // primes();
 
     // Part 2.
     // initTimer();
@@ -203,17 +203,17 @@ int main(void) {
     // button();
     
     // Part 4.
-    initTimer();
-    initButton();
-    button();
-
-    unsigned long prime = 1;
-    int16_t lastTime = 0, accTime = 0;
-    bool buttonState = false;
-
-    while (true) {
-        singlePrime(&prime);
-        checkBlink(&lastTime, &accTime);
-        checkButton(&buttonState);
-    }
+    // initTimer();
+    // initButton();
+    //
+    // unsigned long prime = 1;
+    // int16_t lastTime = 0, accTime = 0;
+    // bool buttonState = false;
+    // LCDDR13 ^= 1;
+    //
+    // while (true) {
+    //     singlePrime(&prime);
+    //     checkBlink(&lastTime, &accTime);
+    //     checkButton(&buttonState);
+    // }
 }
