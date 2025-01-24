@@ -37,6 +37,21 @@ void initButton(void) {
     PORTB = SET(PB7);
 }
 
+void clearChar(int pos) {
+    if (pos < 0 || pos > 5)
+        return;
+
+    div_t qr = div(pos, 2);
+
+    volatile uint8_t *lcd = &LCDDR0 + qr.quot;
+    uint8_t mask = qr.rem ? 0x0F : 0xF0;
+
+    for (uint_fast8_t i = 0; i < 4; i++) {
+        *lcd &= mask;
+        lcd += 0x5;
+    }
+}
+
 static const uint16_t sccTable[] = {
     0x1551, // 0
     0x0110, // 1
@@ -75,19 +90,6 @@ void writeChar(char ch, int pos) {
         lcd += 0x5;
 
         scc >>= 4;
-    }
-}
-
-void clearChar(int pos) {
-    if (pos < 0 || pos > 5)
-        return;
-
-    volatile uint8_t *lcd = &LCDDR0;
-    uint8_t mask = pos % 2 ? 0x0F : 0xF0;
-
-    for (uint_fast8_t i = 0; i < 4; i++) {
-        *lcd &= mask;
-        lcd += 0x5;
     }
 }
 
