@@ -124,24 +124,22 @@ void primes(void) {
     }
 }
 
-static const uint16_t OFFSET = 31250;
-static const int16_t TOLERANCE = 500;
+static const int16_t FREQ = 31250;
 
 void blink() {
-    int16_t next = 0;
+    int16_t last = TCNT1, acc = 0;
 
     while (true) {
-        if (abs(TCNT1 - next) <= TOLERANCE) {
+        int16_t time = TCNT1,
+                diff = time - last;
+        last = time;
+        acc += diff;
+
+        if (acc >= FREQ) {
             LCDDR3 ^= 1;
-            next += OFFSET / 2;
+            acc -= FREQ;
         }
     }
-
-    /* while (true) {
-        while (TCNT1 <= 0x3D09);
-        LCDDR13 ^= 1;
-        TCNT1 = 0;
-    } */
 }
 
 void button(void) {
@@ -167,10 +165,15 @@ void singlePrime(unsigned long *i) {
     writeLong(*i);
 }
 
-void checkBlink(int16_t *next) {
-    if (abs(TCNT1 - *next) <= TOLERANCE) {
+void checkBlink(int16_t *last, int16_t *acc) {
+    int16_t time = TCNT1,
+            diff = time - *last;
+    *last = time;
+    *acc += diff;
+
+    if (*acc >= FREQ) {
         LCDDR3 ^= 1;
-        *next += OFFSET / 2;
+        *acc -= FREQ;
     }
 }
 
@@ -200,16 +203,17 @@ int main(void) {
     // button();
     
     // Part 4.
-    // initTimer();
-    // initButton();
-    // button();
-    //
-    // unsigned long prime = 1;
-    // int16_t timer = OFFSET;
-    // bool buttonState = false;
-    // while (true) {
-    //     singlePrime(&prime);
-    //     checkBlink(&timer);
-    //     checkButton(&buttonState);
-    // }
+    initTimer();
+    initButton();
+    button();
+
+    unsigned long prime = 1;
+    int16_t lastTime = 0, accTime = 0;
+    bool buttonState = false;
+
+    while (true) {
+        singlePrime(&prime);
+        checkBlink(&lastTime, &accTime);
+        checkButton(&buttonState);
+    }
 }
